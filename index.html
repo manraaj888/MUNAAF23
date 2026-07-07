@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacking World Terminal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0f0f 0%, #1a2a2a 100%);
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .hacking-container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(10, 20, 20, 0.95);
+            border: 3px solid #00ff9d;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 0 30px rgba(0, 255, 157, 0.3),
+                        inset 0 0 20px rgba(0, 255, 157, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hacking-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff9d, transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #00ff9d;
+        }
+
+        .header h1 {
+            color: #00ff9d;
+            font-size: 2.5em;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px #00ff9d;
+            animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: skew(0deg); }
+            95% { transform: skew(0deg); }
+            96% { transform: skew(5deg); }
+            97% { transform: skew(-5deg); }
+            98% { transform: skew(3deg); }
+        }
+
+        .status {
+            color: #00cc88;
+            font-size: 0.9em;
+            border: 1px solid #00ff9d;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        .matrix-rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .terminal {
+            background: #0a1515;
+            border: 1px solid #00aa66;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            color: #00ff9d;
+            position: relative;
+            z-index: 1;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+        }
+
+        .terminal-output {
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            font-size: 0.9em;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+
+        .terminal-output p {
+            margin: 3px 0;
+            border-left: 2px solid #00ff9d;
+            padding-left: 10px;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 255, 157, 0.05);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .prompt {
+            color: #00ff9d;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        #terminalInput {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #00ff9d;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            outline: none;
+        }
+
+        .hacking-tools {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tool-card {
+            background: rgba(0, 30, 30, 0.8);
+            border: 1px solid #00aa66;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 157, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .tool-card:hover {
+            background: rgba(0, 255, 157, 0.15);
+            border-color: #00ff9d;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 255, 157, 0.3);
+        }
+
+        .tool-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #00ff9d;
+        }
+
+        .tool-title {
+            color: #00ff9d;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .tool-desc {
+            color: #88ffbb;
+            font-size: 0.8em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #0a1515;
+            border: 1px solid #00aa66;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00aa66, #00ff9d);
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: progressPulse 1.5s infinite;
+        }
+
+        @keyframes progressPulse {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            color: #88ffbb;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+
+        .warning {
+            color: #ffaa00;
+            border: 1px solid #ffaa00;
+            background: rgba(255, 170, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="hacking-container">
+        <div class="matrix-rain"></div>
+        
+        <div class="header">
+            <h1>HACKING WORLD</h1>
+            <div class="status" id="connectionStatus">CONNECTING...</div>
+        </div>
+
+        <div class="terminal">
+            <div class="terminal-output" id="terminalOutput">
+                <p>> SYSTEM INITIALIZED...</p>
+                <p>> LOADING HACKING TOOLS...</p>
+                <p>> ACCESS GRANTED - WELCOME TO THE UNDERGROUND</p>
+            </div>
+            <div class="terminal-input-line">
+                <span class="prompt">root@hack-world:~$</span>
+                <input type="text" id="terminalInput" placeholder="Enter command..." autofocus>
+            </div>
+        </div>
+
+        <div class="stats">
+            <span>SYSTEM: <span id="systemStatus">ACTIVE</span></span>
+            <span>CONNECTIONS: <span id="connections">23</span></span>
+            <span>ENCRYPTION: <span id="encryption">AES-256</span></span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="hackProgress" style="width: 45%;"></div>
+        </div>
+
+        <div class="hacking-tools">
+            <div class="tool-card" onclick="runTool('port')">
+                <div class="tool-icon">🔍</div>
+                <div class="tool-title">PORT SCANNER</div>
+                <div class="tool-desc">Scan open ports</div>
+            </div>
+            <div class="tool-card" onclick="runTool('crack')">
+                <div class="tool-icon">🔓</div>
+                <div class="tool-title">PASSWORD CRACKER</div>
+                <div class="tool-desc">Brute force attack</div>
+            </div>
+            <div class="tool-card" onclick="runTool('ddos')">
+                <div class="tool-icon">🌐</div>
+                <div class="tool-title">DDoS SIM</div>
+                <div class="tool-desc">Simulate attack</div>
+            </div>
+            <div class="tool-card" onclick="runTool('decrypt')">
+                <div class="tool-icon">🔐</div>
+                <div class="tool-title">DECRYPTION</div>
+                <div class="tool-desc">Break encryption</div>
+            </div>
+        </div>
+
+        <div class="warning" id="warningMessage" style="display: none;">
+            ⚠ INTRUSION DETECTED - COUNTERMEASURES ACTIVE
+        </div>
+    </div>
+
+    <script>
+        // Terminal functionality
+        const terminalOutput = document.getElementById('terminalOutput');
+        const terminalInput = document.getElementById('terminalInput');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const hackProgress = document.getElementById('hackProgress');
+        const warningMessage = document.getElementById('warningMessage');
+        
+        let connections = 23;
+        let securityLevel = 75;
+        let isHacking = false;
+
+        // Matrix rain effect (simplified)
+        function createMatrixRain() {
+            const chars = "01アイウエオカキクケコサシスセソタチツテト";
+            const matrix = document.querySelector('.matrix-rain');
+            
+            for (let i = 0; i < 50; i++) {
+                const span = document.createElement('span');
+                span.style.position = 'absolute';
+                span.style.left = Math.random() * 100 + '%';
+                span.style.top = Math.random() * 100 + '%';
+                span.style.color = '#00ff9d';
+                span.style.fontSize = '12px';
+                span.style.opacity = Math.random() * 0.5;
+                span.textContent = chars[Math.floor(Math.random() * chars.length)];
+                matrix.appendChild(span);
+                
+                setInterval(() => {
+                    span.style.top = (parseInt(span.style.top) + 1) % 100 + '%';
+                }, 100);
+            }
+        }
+
+        // Add message to terminal
+        function addTerminalMessage(message, type = 'normal') {
+            const p = document.createElement('p');
+            p.textContent = '> ' + message;
+            if (type === 'success') p.style.color = '#00ff9d';
+            if (type === 'error') p.style.color = '#ff4444';
+            if (type === 'warning') p.style.color = '#ffaa00';
+            terminalOutput.appendChild(p);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        // Run hacking tool
+        function runTool(tool) {
+            if (isHacking) {
+                addTerminalMessage('SYSTEM BUSY - Wait for current operation to complete', 'warning');
+                return;
+            }
+
+            isHacking = true;
+            
+            switch(tool) {
+                case 'port':
+                    simulatePortScan();
+                    break;
+                case 'crack':
+                    simulatePasswordCrack();
+                    break;
+                case 'ddos':
+                    simulateDDoS();
+                    break;
+                case 'decrypt':
+                    simulateDecryption();
+                    break;
+            }
+        }
+
+        function simulatePortScan() {
+            addTerminalMessage('INITIATING PORT SCAN...', 'warning');
+            let portsFound = 0;
+            
+            const scanInterval = setInterval(() => {
+                if (portsFound < 10) {
+                    const port = Math.floor(Math.random() * 65535);
+                    const isOpen = Math.random() > 0.3;
+                    addTerminalMessage(`Port ${port}: ${isOpen ? 'OPEN' : 'CLOSED'}`, isOpen ? 'success' : 'normal');
+                    portsFound++;
+                } else {
+                    clearInterval(scanInterval);
+                    addTerminalMessage('PORT SCAN COMPLETE - 7 open ports found', 'success');
+                    connections += 5;
+                    document.getElementById('connections').textContent = connections;
+                    isHacking = false;
+                }
+            }, 500);
+        }
+
+        function simulatePasswordCrack() {
+            addTerminalMessage('STARTING BRUTE FORCE ATTACK...', 'warning');
+            const passwords = ['admin', 'password', '123456', 'root', 'qwerty', 'letmein'];
+            let attempts = 0;
+            
+            const crackInterval = setInterval(() => {
+                if (attempts < passwords.length) {
+                    addTerminalMessage(`Trying: ${passwords[attempts]} - FAILED`, 'error');
+                    attempts++;
+                } else {
+                    clearInterval(crackInterval);
+                    addTerminalMessage('PASSWORD CRACKED: "admin123"', 'success');
+                    updateProgress(30);
+                    isHacking = false;
+                }
+            }, 800);
+        }
+
+        function simulateDDoS() {
+            addTerminalMessage('INITIATING DDoS SIMULATION...', 'warning');
+            let packets = 0;
+            
+            const ddosInterval = setInterval(() => {
+                if (packets < 15) {
+                    const sent = Math.floor(Math.random() * 1000) + 500;
+                    addTerminalMessage(`Packets sent: ${sent} - Target response: ${Math.random() > 0.7 ? 'DELAYED' : 'NORMAL'}`);
+                    packets++;
+                } else {
+                    clearInterval(ddosInterval);
+                    addTerminalMessage('DDoS SIMULATION COMPLETE - Target system weakened', 'success');
+                    warningMessage.style.display = 'block';
+                    setTimeout(() => warningMessage.style.display = 'none', 3000);
+                    isHacking = false;
+                }
+            }, 400);
+        }
+
+        function simulateDecryption() {
+            addTerminalMessage('ATTEMPTING TO DECRYPT DATA...', 'warning');
+            let progress = 0;
+            
+            const decryptInterval = setInterval(() => {
+                progress += 10;
+                addTerminalMessage(`Decryption progress: ${progress}% - Analyzing patterns...`);
+                
+                if (progress >= 100) {
+                    clearInterval(decryptInterval);
+                    addTerminalMessage('DATA DECRYPTED SUCCESSFULLY', 'success');
+                    addTerminalMessage('Extracted data: "Project_X_Protocols_v2.3"', 'success');
+                    isHacking = false;
+                }
+            }, 600);
+        }
+
+        function updateProgress(amount) {
+            const currentWidth = parseInt(hackProgress.style.width) || 0;
+            const newWidth = Math.min(currentWidth + amount, 100);
+            hackProgress.style.width = newWidth + '%';
+            
+            if (newWidth >= 100) {
+                addTerminalMessage('!!! HACK COMPLETE - SYSTEM ACCESS GRANTED !!!', 'success');
+            }
+        }
+
+        // Handle terminal input
+        terminalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const command = terminalInput.value.trim();
+                terminalInput.value = '';
+                
+                addTerminalMessage(`Executing: ${command}`);
+                
+                // Process commands
+                if (command.toLowerCase() === 'help') {
+                    addTerminalMessage('Available commands: help, scan, status, clear, exit, hack', 'success');
+                } else if (command.toLowerCase() === 'scan') {
+                    runTool('port');
+                } else if (command.toLowerCase() === 'status') {
+                    addTerminalMessage(`System: ACTIVE | Connections: ${connections} | Security Level: ${securityLevel}%`, 'success');
+                } else if (command.toLowerCase() === 'clear') {
+                    terminalOutput.innerHTML = '';
+                    addTerminalMessage('Terminal cleared');
+                } else if (command.toLowerCase() === 'hack') {
+                    addTerminalMessage('Initiating main hack sequence...', 'warning');
+                    updateProgress(15);
+                } else if (command.toLowerCase() === 'exit') {
+                    addTerminalMessage('Disconnecting from network...', 'warning');
+                    connectionStatus.textContent = 'DISCONNECTED';
+                    setTimeout(() => connectionStatus.textContent = 'CONNECTING...', 2000);
+                } else {
+                    addTerminalMessage(`Command not recognized: ${command}`, 'error');
+                }
+            }
+        });
+
+        // Simulate network activity
+        setInterval(() => {
+            if (!isHacking) {
+                connections += Math.floor(Math.random() * 3) - 1;
+                connections = Math.max(10, Math.min(50, connections));
+                document.getElementById('connections').textContent = connections;
+                
+                securityLevel += Math.floor(Math.random() * 5) - 2;
+                securityLevel = Math.max(50, Math.min(100, securityLevel));
+            }
+        }, 3000);
+
+        // Random warning messages
+        setInterval(() => {
+            if (Math.random() > 0.7 && !isHacking) {
+                addTerminalMessage('⚠ Unauthorized access attempt detected', 'warning');
+            }
+        }, 8000);
+
+        // Initialize
+        createMatrixRain();
+        addTerminalMessage('System ready - Type "help" for commands', 'success');
+
+        // Focus input on any key press
+        document.addEventListener('keydown', () => {
+            terminalInput.focus();
+        });
+    </script>
+</body>
+</html>
